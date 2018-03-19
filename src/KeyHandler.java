@@ -1,9 +1,10 @@
 import javafx.scene.input.KeyCode;
 
 import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
 import java.util.ArrayList;
 
-public class KeyHandler {
+public class KeyHandler implements KeyListener {
     ArrayList<Key> trackedKeys;
     public KeyHandler(int[] valuesToTrack){
         trackedKeys = new ArrayList<>(valuesToTrack.length);
@@ -26,6 +27,21 @@ public class KeyHandler {
                 return key.getPressed() ? 1 : 0;
         }
         return -1;
+    }
+
+    @Override
+    public void keyTyped(KeyEvent e) {
+
+    }
+
+    @Override
+    public void keyPressed(KeyEvent e) {
+        setKey(e, true);
+    }
+
+    @Override
+    public void keyReleased(KeyEvent e) {
+        setKey(e, false);
     }
 
     private class Key{

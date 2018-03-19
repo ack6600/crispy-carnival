@@ -3,7 +3,7 @@ import java.awt.*;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 
-public class League extends JFrame implements KeyListener{
+public class League extends JFrame{
     private Thread gameThread;
     private Thread drawThread;
     private KeyHandler keyHandler;
@@ -26,10 +26,10 @@ public class League extends JFrame implements KeyListener{
         this.setDefaultCloseOperation(EXIT_ON_CLOSE);
         this.setSize(width, height);
         this.setResizable(true);
-        this.addKeyListener(this);
         keyHandler = new KeyHandler(controls);
         gameThread = new Thread(this::updatePhysics);
         drawThread = new Thread(this::reDraw);
+        this.addKeyListener(keyHandler);
     }
 
     public void start(){
@@ -42,7 +42,6 @@ public class League extends JFrame implements KeyListener{
         while (true){
             if(keyHandler.getKeyPressed(controls[0]) == 1){
                 charY += 0.1;
-                System.out.println("yo");
             }
         }
     }
@@ -70,18 +69,5 @@ public class League extends JFrame implements KeyListener{
         graphics.drawRect((int) charX, (int) charY, 20, 20);
         graphics.drawString(String.valueOf(fps), 10,42);
         return frame;
-    }
-    @Override
-    public void keyTyped(KeyEvent e) {
-    }
-
-    @Override
-    public void keyPressed(KeyEvent e) {
-        keyHandler.setKey(e, true);
-    }
-
-    @Override
-    public void keyReleased(KeyEvent e) {
-        keyHandler.setKey(e, false);
     }
 }
