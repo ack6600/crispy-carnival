@@ -5,7 +5,7 @@ import java.awt.event.KeyListener;
 import java.util.ArrayList;
 
 public class KeyHandler implements KeyListener {
-    ArrayList<Key> trackedKeys;
+    private ArrayList<Key> trackedKeys;
     public KeyHandler(int[] valuesToTrack){
         trackedKeys = new ArrayList<>(valuesToTrack.length);
         for(int keyCode : valuesToTrack){
