@@ -6,6 +6,8 @@ public abstract class Entity {
 
     public abstract double getX();
     public abstract double getY();
-    public abstract Image getSprite();
-    public abstract void update();
+    public abstract double getAngle();
+    public abstract double getLength();
+    public abstract void update(KeyHandler keyHandler, long time);
+    public abstract int[] getControls();
 }

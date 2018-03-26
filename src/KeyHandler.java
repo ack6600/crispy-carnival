@@ -6,9 +6,12 @@ import java.util.ArrayList;
 
 public class KeyHandler implements KeyListener {
     private ArrayList<Key> trackedKeys;
-    public KeyHandler(int[] valuesToTrack){
-        trackedKeys = new ArrayList<>(valuesToTrack.length);
-        for(int keyCode : valuesToTrack){
+    public KeyHandler(){
+        trackedKeys = new ArrayList<>();
+    }
+
+    public void registerKeys(int[] keys){
+        for(int keyCode : keys){
             trackedKeys.add(new Key(keyCode));
             System.out.println("Added key " + keyCode);
         }
@@ -21,12 +24,12 @@ public class KeyHandler implements KeyListener {
         }
     }
 
-    public int getKeyPressed(int keyCode){
+    public boolean getKeyPressed(int keyCode) throws UnregisteredKeyException{
         for(Key key : trackedKeys){
             if(key.getKeyCode() == keyCode)
-                return key.getPressed() ? 1 : 0;
+                return key.getPressed();
         }
-        return -1;
+        throw new UnregisteredKeyException("Given key has not been registered");
     }
 
     @Override

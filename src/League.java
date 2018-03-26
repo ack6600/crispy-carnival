@@ -1,18 +1,11 @@
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.KeyEvent;
-import java.awt.event.KeyListener;
 
 public class League extends JFrame{
     private Thread gameThread;
     private Thread drawThread;
     private KeyHandler keyHandler;
     private EntityHandler entityHandler;
-    private int[] controls = {
-            KeyEvent.VK_UP,
-            KeyEvent.VK_DOWN,
-            KeyEvent.VK_RIGHT,
-            KeyEvent.VK_LEFT};
     private long lastTime = System.nanoTime();
     private long fps = 0;
     public static void main(String[] args){
@@ -25,7 +18,7 @@ public class League extends JFrame{
         this.setDefaultCloseOperation(EXIT_ON_CLOSE);
         this.setSize(width, height);
         this.setResizable(true);
-        keyHandler = new KeyHandler(controls);
+        keyHandler = new KeyHandler();
         entityHandler = new EntityHandler(keyHandler);
         gameThread = new Thread(this::updatePhysics);
         drawThread = new Thread(this::reDraw);
@@ -39,6 +32,9 @@ public class League extends JFrame{
     }
 
     private void updatePhysics(){
+        entityHandler.addEntity(new CarEntity(20, 20));
+        entityHandler.addEntity(new CarEntity(40,40));
+        entityHandler.addEntity(new CarEntity(60, 60));
         while (true){
             entityHandler.run();
         }
@@ -56,6 +52,7 @@ public class League extends JFrame{
         g.drawImage(entityHandler.drawFrame(createImage(this.getWidth(),this.getHeight()),String.valueOf(fps)),0,0,null);
 //        g.drawString(String.valueOf(fps), 10,42);
     }
+
 
     private void calculateFPS(){
         long now = System.nanoTime();
