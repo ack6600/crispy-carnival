@@ -33,8 +33,14 @@ public class EntityHandler implements Runnable {
         Graphics graphics = image.getGraphics();
         int entityNum = 0;
         for(Entity entity : entities){
+            Polygon intersect = new Polygon(new int[] {50,50,100,100},new int[] {50,100,100,50},4);
             graphics.drawString(entityNum + ": " + (int) entity.getX() + " " + (int) entity.getY(), 10, 52 + (10 * entityNum));
-            graphics.drawLine((int) entity.getX(), (int) entity.getY(), (int) (entity.getX() + (entity.getLength() * Math.cos(Math.toRadians(entity.getAngle())))), (int) (entity.getY() + (entity.getLength() * Math.sin(Math.toRadians(entity.getAngle())))));
+            graphics.drawString("Does intersect: " + entity.intersects(intersect), 10, 62);
+            graphics.setColor(entity.getColor());
+            graphics.fillPolygon(entity.getPolygon());
+            graphics.setColor(Color.BLACK);
+            graphics.drawPolygon(intersect);
+//            graphics.drawRect((int)entity.getBounds().getX(),(int)entity.getBounds().getY(),(int)entity.getBounds().getWidth(), (int) entity.getBounds().getHeight());
             entityNum++;
         }
         graphics.drawString(s,10,42);

@@ -33,8 +33,8 @@ public class League extends JFrame{
 
     private void updatePhysics(){
         entityHandler.addEntity(new CarEntity(20, 20));
-        entityHandler.addEntity(new CarEntity(40,40));
-        entityHandler.addEntity(new CarEntity(60, 60));
+//        entityHandler.addEntity(new CarEntity(40,40));
+//        entityHandler.addEntity(new CarEntity(60, 60));
         while (true){
             entityHandler.run();
         }
