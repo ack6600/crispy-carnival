@@ -29,7 +29,7 @@ public class KeyHandler implements KeyListener {
             if(key.getKeyCode() == keyCode)
                 return key.getPressed();
         }
-        throw new UnregisteredKeyException("Given key has not been registered");
+        throw new UnregisteredKeyException("Given key has not been registered KeyCode:" + keyCode);
     }
 
     @Override

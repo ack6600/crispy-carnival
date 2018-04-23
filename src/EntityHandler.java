@@ -33,13 +33,18 @@ public class EntityHandler implements Runnable {
         Graphics graphics = image.getGraphics();
         int entityNum = 0;
         for(Entity entity : entities){
-            Polygon intersect = new Polygon(new int[] {50,50,100,100},new int[] {50,100,100,50},4);
+//            Polygon intersect = new Polygon(new int[] {50,50,100,100},new int[] {50,100,100,50},4);
             graphics.drawString(entityNum + ": " + (int) entity.getX() + " " + (int) entity.getY(), 10, 52 + (10 * entityNum));
-            graphics.drawString("Does intersect: " + entity.intersects(intersect), 10, 62);
+//            graphics.drawString("Does intersect: " + entity.intersects(intersect), 10, 62);
             graphics.setColor(entity.getColor());
-            graphics.fillPolygon(entity.getPolygon());
+            if(entity.getType() == Entity.DrawType.Polygon) {
+                graphics.fillPolygon(entity.getPolygon());
+            }
+            if(entity.getType() == Entity.DrawType.Circle){
+                graphics.fillOval((int)entity.getX(),(int)entity.getY(),entity.getPolygon().xpoints[0],entity.getPolygon().ypoints[0]);
+            }
             graphics.setColor(Color.BLACK);
-            graphics.drawPolygon(intersect);
+//            graphics.drawPolygon(intersect);
 //            graphics.drawRect((int)entity.getBounds().getX(),(int)entity.getBounds().getY(),(int)entity.getBounds().getWidth(), (int) entity.getBounds().getHeight());
             entityNum++;
         }

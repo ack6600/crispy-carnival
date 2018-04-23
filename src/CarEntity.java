@@ -35,28 +35,20 @@ public class CarEntity extends Entity {
     }
 
     @Override
-    public double getAngle() {
-        return angle;
-    }
-
-    @Override
-    public double getLength() {
-        return this.length;
-    }
-
-    @Override
     public Polygon getPolygon() {
+        double nX = this.x - (this.width * Math.cos(Math.toRadians(this.angle)))/2.0;
+        double nY = this.y - (this.length * Math.sin(Math.toRadians(this.angle-90.0)))/2.0;
         int[] xPoints = {
-                (int) this.x,
-                (int) (this.x + this.width * Math.cos(Math.toRadians(this.angle))),
-                (int) (this.x + (Math.sqrt((this.width * this.width) + (this.length * this.length)) * Math.cos(Math.toRadians(this.angle-(90.0-Math.toDegrees(Math.atan2(this.width,this.length))))))),
-                (int) (this.x + this.length * Math.cos(Math.toRadians(this.angle-90.0)))
+                (int) nX,
+                (int) (nX + this.width * Math.cos(Math.toRadians(this.angle))),
+                (int) (nX + (Math.sqrt((this.width * this.width) + (this.length * this.length)) * Math.cos(Math.toRadians(this.angle-(90.0-Math.toDegrees(Math.atan2(this.width,this.length))))))),
+                (int) (nX + this.length * Math.cos(Math.toRadians(this.angle-90.0)))
         };
         int[] yPoints = {
-                (int) this.y,
-                (int) (this.y + this.width * Math.sin(Math.toRadians(this.angle))),
-                (int) (this.y + (Math.sqrt((this.width * this.width) + (this.length * this.length)) * Math.sin(Math.toRadians(this.angle-(90.0-Math.toDegrees(Math.atan2(this.width,this.length))))))),
-                (int) (this.y + this.length * Math.sin(Math.toRadians(this.angle-90.0)))
+                (int) nY,
+                (int) (nY + this.width * Math.sin(Math.toRadians(this.angle))),
+                (int) (nY + (Math.sqrt((this.width * this.width) + (this.length * this.length)) * Math.sin(Math.toRadians(this.angle-(90.0-Math.toDegrees(Math.atan2(this.width,this.length))))))),
+                (int) (nY + this.length * Math.sin(Math.toRadians(this.angle-90.0)))
 
         };
         return new Polygon(xPoints, yPoints, 4);
@@ -64,7 +56,7 @@ public class CarEntity extends Entity {
 
     @Override
     public Color getColor() {
-        return Color.MAGENTA;
+        return Color.getHSBColor((float)Math.random()*500.0f,1.0f,1.0f);
     }
 
     @Override
@@ -74,11 +66,6 @@ public class CarEntity extends Entity {
                 return true;
         }
         return false;
-    }
-
-    @Override
-    public Rectangle2D getBounds() {
-        return this.getPolygon().getBounds2D();
     }
 
     @Override
@@ -104,7 +91,11 @@ public class CarEntity extends Entity {
             }
 
         } catch (UnregisteredKeyException e) {
-            e.printStackTrace();
+            String error = e.getMessage();
+            for(int i = 0; i < error.length();i++){
+                if(error.charAt(i) == ':')
+                    keyHandler.registerKeys(new int[] {Integer.parseInt(error.substring(i+1))});
+            }
         }
     }
 
@@ -115,5 +106,10 @@ public class CarEntity extends Entity {
     @Override
     public int[] getControls() {
         return controls;
+    }
+
+    @Override
+    public DrawType getType() {
+        return DrawType.Polygon;
     }
 }
