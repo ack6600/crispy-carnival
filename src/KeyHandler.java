@@ -11,6 +11,8 @@ public class KeyHandler implements KeyListener {
     }
 
     public void registerKeys(int[] keys){
+        if(keys == null)
+            return;
         for(int keyCode : keys){
             trackedKeys.add(new Key(keyCode));
             System.out.println("Added key " + keyCode);

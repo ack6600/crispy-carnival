@@ -9,13 +9,14 @@ public class EntityHandler implements Runnable {
     private KeyHandler keyHandler;
     private ArrayList<Entity> entities;
     private long lastTime = 0;
+    private boolean debug = false;
 
     public EntityHandler(KeyHandler keyHandler){
         this.keyHandler = keyHandler;
         entities = new ArrayList<>();
     }
 
-    public int addEntity(Entity e){
+    public synchronized int addEntity(Entity e){
         entities.add(e);
         this.keyHandler.registerKeys(e.getControls());
         return e.hashCode();
@@ -29,19 +30,28 @@ public class EntityHandler implements Runnable {
         return null;
     }
 
-    public Image drawFrame(Image image, String s){
+    public void setDebug(boolean debug){
+        this.debug = debug;
+    }
+
+    public synchronized Image drawFrame(Image image, String s){
         Graphics graphics = image.getGraphics();
         int entityNum = 0;
         for(Entity entity : entities){
 //            Polygon intersect = new Polygon(new int[] {50,50,100,100},new int[] {50,100,100,50},4);
-            graphics.drawString(entityNum + ": " + (int) entity.getX() + " " + (int) entity.getY(), 10, 52 + (10 * entityNum));
+            if(debug)
+                graphics.setColor(entity.getColor());
+                graphics.drawString(entityNum + ": " + (int) entity.getX() + " " + (int) entity.getY() + " " + entity.getAngle() + "°", 10, 52 + (10 * entityNum));
 //            graphics.drawString("Does intersect: " + entity.intersects(intersect), 10, 62);
-            graphics.setColor(entity.getColor());
+            graphics.setColor(entity.collides() ? (debug ? Color.GREEN : entity.getColor()) : entity.getColor());
             if(entity.getType() == Entity.DrawType.Polygon) {
                 graphics.fillPolygon(entity.getPolygon());
             }
             if(entity.getType() == Entity.DrawType.Circle){
-                graphics.fillOval((int)entity.getX(),(int)entity.getY(),entity.getPolygon().xpoints[0],entity.getPolygon().ypoints[0]);
+                if(debug) {
+                    graphics.drawPolygon(entity.getPolygon());
+                }
+                graphics.fillOval((int)entity.getX(),(int)entity.getY(),(int) (entity.getPolygon().xpoints[2] - entity.getX()), (int) (entity.getPolygon().ypoints[2] - entity.getY()));
             }
             graphics.setColor(Color.BLACK);
 //            graphics.drawPolygon(intersect);
@@ -56,7 +66,7 @@ public class EntityHandler implements Runnable {
     public void run() {
         long time = System.nanoTime();
         for(Entity e : entities){
-            e.update(this.keyHandler, (time - lastTime));
+            e.update(this.keyHandler, this, (time - lastTime));
         }
         lastTime = time;
     }

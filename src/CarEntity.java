@@ -8,20 +8,21 @@ import java.util.concurrent.TimeUnit;
 
 public class CarEntity extends Entity {
     private double x, y;
+    private Color color;
     private double angle = 0.0;
     private double length = 20.0;
     private double width = 40.0;
-    private double speed = 100.0;
-    private final double TURN_SPEED = 45.0;
-    private int[] controls = {
-            KeyEvent.VK_UP,
-            KeyEvent.VK_DOWN,
-            KeyEvent.VK_RIGHT,
-            KeyEvent.VK_LEFT};
+    private double speed = 200.0;
+    private final double TURN_SPEED = 100.0;
+    private int[] collisions;
+    private int[] controls;
+    private boolean collides;
 
-    public CarEntity(double x, double y){
+    public CarEntity(double x, double y, Color color, int[] controls){
         this.x = x;
         this.y = y;
+        this.color = color;
+        this.controls = controls;
     }
 
     @Override
@@ -35,9 +36,14 @@ public class CarEntity extends Entity {
     }
 
     @Override
+    public double getAngle() {
+        return angle;
+    }
+
+    @Override
     public Polygon getPolygon() {
-        double nX = this.x - (this.width * Math.cos(Math.toRadians(this.angle)))/2.0;
-        double nY = this.y - (this.length * Math.sin(Math.toRadians(this.angle-90.0)))/2.0;
+        double nX = this.x - (Math.sqrt((this.width * this.width) + (this.length * this.length))/2.0 * Math.cos(Math.toRadians(this.angle-(90.0-Math.toDegrees(Math.atan2(this.width,this.length))))));
+        double nY = this.y - (Math.sqrt((this.width * this.width) + (this.length * this.length))/2.0 * Math.sin(Math.toRadians(this.angle-(90.0-Math.toDegrees(Math.atan2(this.width,this.length))))));
         int[] xPoints = {
                 (int) nX,
                 (int) (nX + this.width * Math.cos(Math.toRadians(this.angle))),
@@ -56,7 +62,7 @@ public class CarEntity extends Entity {
 
     @Override
     public Color getColor() {
-        return Color.getHSBColor((float)Math.random()*500.0f,1.0f,1.0f);
+        return color;
     }
 
     @Override
@@ -69,8 +75,14 @@ public class CarEntity extends Entity {
     }
 
     @Override
-    public void update(KeyHandler keyHandler, long time) {
+    public void update(KeyHandler keyHandler, EntityHandler entityHandler, long time) {
         double seconds = ((double) time) / 1000000000.0;
+        int bumps = 0;
+        for(int i : collisions){
+            if(this.intersects(entityHandler.getEntity(i).getPolygon()))
+                bumps++;
+        }
+        collides = bumps > 0;
         try {
             boolean up = keyHandler.getKeyPressed(controls[0]);
             boolean down = keyHandler.getKeyPressed(controls[1]);
@@ -111,5 +123,15 @@ public class CarEntity extends Entity {
     @Override
     public DrawType getType() {
         return DrawType.Polygon;
+    }
+
+    @Override
+    public void setCollisions(int[] collisions) {
+        this.collisions = collisions;
+    }
+
+    @Override
+    public boolean collides() {
+        return collides;
     }
 }

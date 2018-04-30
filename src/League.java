@@ -2,6 +2,8 @@ import javafx.scene.effect.ImageInput;
 
 import javax.imageio.ImageIO;
 import javax.swing.*;
+import java.awt.*;
+import java.awt.event.KeyEvent;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
@@ -22,37 +24,13 @@ public class League implements Runnable{
             System.out.println("OwO whats this");
             System.exit(0);
         };
-        Runnable test2 = () -> {
-            System.out.println("ur mum gay lol");
-            System.exit(0);
-        };
-        Runnable test3 = () -> {
-            System.out.println("My mom gay");
-            System.exit(0);
-        };
-        Runnable test4 = () -> {
-            System.out.println("our mom gay");
-            System.exit(0);
-        };
-        Runnable test5 = () -> {
-            System.out.println("stalin intensifies");
-            System.exit(0);
-        };
-        Runnable test6 = () -> {
-            System.out.println("gucci ganggggggg");
-            System.exit(0);
-        };
-        Runnable test7 = () -> {
-            System.out.println("我是爸爸");
-            System.exit(0);
-        };
         BufferedImage logo = null;
         try {
             logo = ImageIO.read(new File("images/header.jpg"));
         } catch (IOException e) {
             e.printStackTrace();
         }
-        TitleScreen titleScreen = new TitleScreen(root, 1280, 720, new String[] {"Start", "OwO", "(Migos Adlib) MAMA","Mama 2", "Stalin mom","Bork","Lil Pump","Something Japanese"}, new Runnable[] {league, test1, test2, test3, test4, test5, test6, test7}, logo);
+        TitleScreen titleScreen = new TitleScreen(root, 1280, 720, new String[] {"Start", "OwO"}, new Runnable[] {league, test1}, logo);
         titleScreen.start();
     }
 
@@ -63,6 +41,7 @@ public class League implements Runnable{
         frame.setResizable(true);
         keyHandler = new KeyHandler();
         entityHandler = new EntityHandler(keyHandler);
+        entityHandler.setDebug(true);
         gameThread = new Thread(this::updatePhysics);
         drawThread = new Thread(this::reDraw);
         frame.addKeyListener(keyHandler);
@@ -76,7 +55,15 @@ public class League implements Runnable{
     }
 
     private void updatePhysics(){
-        entityHandler.addEntity(new CarEntity(20, 20));
+        CarEntity car1 = new CarEntity(0,0, Color.RED, Controls.carOneControls);
+        CarEntity car2 = new CarEntity(50,50, Color.BLUE, Controls.carTwoControls);
+        BallEntity ballEntity = new BallEntity(this.frame.getWidth()/2, this.frame.getHeight()/2, Color.BLACK);
+        car1.setCollisions(new int[] {car2.hashCode(), ballEntity.hashCode()});
+        car2.setCollisions(new int[] {car1.hashCode(), ballEntity.hashCode()});
+        ballEntity.setCollisions(new int[] {car2.hashCode(), car1.hashCode()});
+        entityHandler.addEntity(car1);
+        entityHandler.addEntity(car2);
+        entityHandler.addEntity(ballEntity);
 //        entityHandler.addEntity(new CarEntity(40,40));
 //        entityHandler.addEntity(new CarEntity(60, 60));
         while (true){
