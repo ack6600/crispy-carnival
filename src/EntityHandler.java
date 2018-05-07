@@ -1,4 +1,5 @@
 import java.awt.*;
+import java.awt.event.KeyEvent;
 import java.awt.geom.AffineTransform;
 import java.awt.image.AffineTransformOp;
 import java.awt.image.BufferedImage;
@@ -10,9 +11,12 @@ public class EntityHandler implements Runnable {
     private ArrayList<Entity> entities;
     private long lastTime = 0;
     private boolean debug = false;
+    private League league;
 
-    public EntityHandler(KeyHandler keyHandler){
+    public EntityHandler(KeyHandler keyHandler, League league){
         this.keyHandler = keyHandler;
+        this.league = league;
+        keyHandler.registerKey(KeyEvent.VK_ESCAPE);
         entities = new ArrayList<>();
     }
 
@@ -28,6 +32,10 @@ public class EntityHandler implements Runnable {
                 return entity;
         }
         return null;
+    }
+
+    public synchronized void reset(){
+        entities.clear();
     }
 
     public void setDebug(boolean debug){
@@ -67,6 +75,12 @@ public class EntityHandler implements Runnable {
         long time = System.nanoTime();
         for(Entity e : entities){
             e.update(this.keyHandler, this, (time - lastTime));
+        }
+        try {
+            if(keyHandler.getKeyPressed(KeyEvent.VK_ESCAPE))
+                league.exit();
+        } catch (UnregisteredKeyException e) {
+            e.printStackTrace();
         }
         lastTime = time;
     }

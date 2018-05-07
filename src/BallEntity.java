@@ -63,7 +63,12 @@ public class BallEntity extends Entity {
 
     @Override
     public void update(KeyHandler keyHandler, EntityHandler entityHandler, long time) {
-
+        for(int id : collisions){
+            Entity e = entityHandler.getEntity(id);
+//            if(this.intersects(e.getPolygon())){
+//                this.angle =
+//            }
+        }
     }
 
     @Override

@@ -1,13 +1,14 @@
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.KeyEvent;
-import java.awt.image.BufferedImage;
+import java.awt.event.KeyListener;
 import java.util.concurrent.TimeUnit;
 
-public class TitleScreen implements Runnable{
+public class SettingsScreen implements KeyListener, Runnable {
     private JFrame frame;
+    private Runnable back;
     private KeyHandler keyHandler;
-    private Runnable[] targets;
+    private SettingsObject defaults;
     private String[] names;
     private Runnable drawRunnable, keyRunnable;
     private int[] keys = {
@@ -18,28 +19,20 @@ public class TitleScreen implements Runnable{
     };
     private volatile boolean running;
     private volatile int selected = 0;
-    private int nameOffset = 100;
     private boolean cooldown = false;
-    private boolean drawLogo = false;
-    private BufferedImage logo;
+    private volatile int lastPressed;
 
+    private int NAME_OFFSET = 80;
     private final static int NAME_HEIGHT = 60;
-    private final static int NAME_WIDTH = 200;
+    private final static int NAME_WIDTH = 220;
 
-    public TitleScreen(JFrame root, int width, int height, String[] names, Runnable[] targets, BufferedImage logo){
+    public SettingsScreen(JFrame root, SettingsObject defaults) {
         this.frame = root;
-        keyHandler = new KeyHandler();
-        frame.addKeyListener(keyHandler);
-        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        frame.setSize(width, height);
-        frame.setResizable(true);
-        this.targets = targets;
-        this.names = names;
-        if(logo != null){
-            drawLogo = true;
-            this.logo = logo;
-            nameOffset = logo.getHeight() + 100;
-        }
+        this.keyHandler = new KeyHandler();
+        this.frame.addKeyListener(keyHandler);
+        this.defaults = defaults;
+        this.names = Settings.settingNames;
+        this.running = false;
         drawRunnable = new Runnable() {
             @Override
             public void run() {
@@ -54,9 +47,14 @@ public class TitleScreen implements Runnable{
         };
     }
 
-    public void start() {
-        frame.setVisible(true);
+    public void setBack(Runnable back){
+        this.back = back;
+    }
+
+    @Override
+    public void run() {
         this.running = true;
+        selected = 0;
         (new Thread(drawRunnable)).start();
         (new Thread(keyRunnable)).start();
     }
@@ -66,19 +64,21 @@ public class TitleScreen implements Runnable{
             Image draw = frame.createImage(frame.getWidth(),frame.getHeight());
             Graphics g = draw.getGraphics();
             g.setFont(new Font(Font.SANS_SERIF,Font.BOLD,20));
-            for(int i = 0; i < targets.length; i++){
+            g.drawString("Press escape to go back to the menu", 50, 60);
+            for(int i = 0; i < names.length; i++){
                 if(i == selected)
                     g.setColor(Color.RED);
-                int x = (int)((double)frame.getWidth()/2d) - NAME_WIDTH/2;
-                int y = nameOffset + ((int)(1.5*NAME_HEIGHT) * i);
+                int column = 0;
+                for(int f = i - 5; f > 0; f -= 6)
+                    column++;
+                int x = 50 + ((column * NAME_WIDTH) + (30 * column));
+                int y = NAME_OFFSET + ((int)(1.5*NAME_HEIGHT) * (i - (column * 6)));
                 g.drawRect(x,y,NAME_WIDTH,NAME_HEIGHT);
                 String title = names[i];
                 int stringX = ((NAME_WIDTH - g.getFontMetrics().stringWidth(title))/2) + x;
                 int stringY = ((NAME_HEIGHT - g.getFontMetrics().getHeight())/2) + y + g.getFontMetrics().getAscent();
                 g.drawString(title,stringX, stringY);
                 g.setColor(Color.BLACK);
-                if(drawLogo)
-                    g.drawImage(logo, (x + NAME_WIDTH/2) - logo.getWidth()/2, 50, null);
             }
             frame.getGraphics().drawImage(draw,0,0,null);
         }
@@ -91,7 +91,7 @@ public class TitleScreen implements Runnable{
             if(!cooldown){
                 try {
                     if(keyHandler.getKeyPressed(keys[0])){
-                        if(selected < targets.length-1) {
+                        if(selected < names.length-1) {
                             selected++;
                         }else {
                             selected = 0;
@@ -101,13 +101,13 @@ public class TitleScreen implements Runnable{
                         if(selected > 0) {
                             selected--;
                         }else {
-                            selected = targets.length-1;
+                            selected = names.length-1;
                         }
                     }
                     if(keyHandler.getKeyPressed(keys[2]))
-                        launch();
+                        handleSetting();
                     if(keyHandler.getKeyPressed(keys[3]))
-                        System.exit(80085);
+                        this.exit();
                     cooldown = true;
                     now = System.nanoTime();
                 } catch (UnregisteredKeyException e) {
@@ -125,13 +125,27 @@ public class TitleScreen implements Runnable{
         }
     }
 
-    private void launch(){
-        running = false;
-        targets[selected].run();
+    private void exit() {
+        this.running = false;
+        back.run();
+    }
+
+    private void handleSetting() {
+
     }
 
     @Override
-    public void run() {
-        this.start();
+    public void keyTyped(KeyEvent e) {
+        lastPressed = e.getKeyCode();
+    }
+
+    @Override
+    public void keyPressed(KeyEvent e) {
+
+    }
+
+    @Override
+    public void keyReleased(KeyEvent e) {
+
     }
 }

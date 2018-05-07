@@ -1,5 +1,3 @@
-import javafx.scene.input.KeyCode;
-
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.util.ArrayList;
@@ -17,6 +15,10 @@ public class KeyHandler implements KeyListener {
             trackedKeys.add(new Key(keyCode));
             System.out.println("Added key " + keyCode);
         }
+    }
+
+    public void registerKey(int key){
+        this.registerKeys(new int[] {key});
     }
 
     public void setKey(KeyEvent event, boolean pressed){

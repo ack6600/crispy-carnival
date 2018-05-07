@@ -13,7 +13,7 @@ public class CarEntity extends Entity {
     private double length = 20.0;
     private double width = 40.0;
     private double speed = 200.0;
-    private final double TURN_SPEED = 100.0;
+    private final double TURN_SPEED = 200.0;
     private int[] collisions;
     private int[] controls;
     private boolean collides;
