@@ -42,7 +42,7 @@ public class EntityHandler implements Runnable {
         this.debug = debug;
     }
 
-    public synchronized Image drawFrame(Image image, String s){
+    public synchronized Image drawFrame(Image image, String s, int[] score){
         Graphics graphics = image.getGraphics();
         int entityNum = 0;
         for(Entity entity : entities){
@@ -67,9 +67,15 @@ public class EntityHandler implements Runnable {
             entityNum++;
         }
         graphics.drawString(s,10,42);
+        graphics.setFont(new Font(Font.SANS_SERIF,Font.BOLD,20));
+        graphics.drawString("Red:" + String.valueOf(score[1]), image.getWidth(null)/2 - 150,48);
+        graphics.drawString("Blue:" + String.valueOf(score[0]), image.getWidth(null)/2 + 100,48);
         return image;
     }
 
+    public void increaseScore(int yeet){
+        league.increaseScore(yeet);
+    }
     @Override
     public void run() {
         long time = System.nanoTime();
@@ -80,7 +86,7 @@ public class EntityHandler implements Runnable {
             if(keyHandler.getKeyPressed(KeyEvent.VK_ESCAPE))
                 league.exit();
         } catch (UnregisteredKeyException e) {
-            e.printStackTrace();
+            KeyHandler.handleKeyError(e.getMessage(),keyHandler);
         }
         lastTime = time;
     }

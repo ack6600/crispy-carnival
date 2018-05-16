@@ -36,6 +36,12 @@ public class KeyHandler implements KeyListener {
         throw new UnregisteredKeyException("Given key has not been registered KeyCode:" + keyCode);
     }
 
+    public static void handleKeyError(String error, KeyHandler keyHandler){
+        for(int i = 0; i < error.length();i++){
+            if(error.charAt(i) == ':')
+                keyHandler.registerKey(Integer.parseInt(error.substring(i+1)));
+        }
+    }
     @Override
     public void keyTyped(KeyEvent e) {
 

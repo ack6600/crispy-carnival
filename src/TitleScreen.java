@@ -19,7 +19,7 @@ public class TitleScreen implements Runnable{
     private volatile boolean running;
     private volatile int selected = 0;
     private int nameOffset = 100;
-    private boolean cooldown = false;
+    private int cooldown = 0;
     private boolean drawLogo = false;
     private BufferedImage logo;
 
@@ -86,9 +86,9 @@ public class TitleScreen implements Runnable{
 
     private void getKeys(){
         keyHandler.registerKeys(keys);
-        long now = 0;
+        long now = System.nanoTime();
         while (running){
-            if(!cooldown){
+            if(cooldown == 0){
                 try {
                     if(keyHandler.getKeyPressed(keys[0])){
                         if(selected < targets.length-1) {
@@ -108,19 +108,15 @@ public class TitleScreen implements Runnable{
                         launch();
                     if(keyHandler.getKeyPressed(keys[3]))
                         System.exit(80085);
-                    cooldown = true;
+                    cooldown = 100;
                     now = System.nanoTime();
                 } catch (UnregisteredKeyException e) {
-                    String error = e.getMessage();
-                    for(int i = 0; i < error.length();i++){
-                        if(error.charAt(i) == ':')
-                            keyHandler.registerKeys(new int[] {Integer.parseInt(error.substring(i+1))});
-                    }
+                    KeyHandler.handleKeyError(e.getMessage(),keyHandler);
                 }
             }
-            if(cooldown){
-                if(now + TimeUnit.MILLISECONDS.toNanos(100) < System.nanoTime())
-                    cooldown = false;
+            if(cooldown > 0){
+                if(now + TimeUnit.MILLISECONDS.toNanos(cooldown) < System.nanoTime())
+                    cooldown = 0;
             }
         }
     }
@@ -132,6 +128,7 @@ public class TitleScreen implements Runnable{
 
     @Override
     public void run() {
+        cooldown = 500;
         this.start();
     }
 }

@@ -16,6 +16,10 @@ public class League implements Runnable{
     private long fps = 0;
     private Runnable back;
     private volatile boolean running = false;
+    private volatile int SCORE_ONE = 0;
+    private volatile int SCORE_TWO = 0;
+
+    public static double FIELD_WIDTH = 500;
 
     public static void main(String[] args){
         initSettings();
@@ -45,7 +49,7 @@ public class League implements Runnable{
         frame.setResizable(true);
         keyHandler = new KeyHandler();
         entityHandler = new EntityHandler(keyHandler, this);
-        entityHandler.setDebug(true);
+//        entityHandler.setDebug(true);
         gameRunnable = new Runnable() {
             @Override
             public void run() {
@@ -88,14 +92,26 @@ public class League implements Runnable{
                 (int) settingsObject.getSetting(Settings.settingsKeys[6]),
                 (int) settingsObject.getSetting(Settings.settingsKeys[7]),
         };
-        CarEntity car1 = new CarEntity(0,0, (Color) settingsObject.getSetting(Settings.settingsKeys[8]), carOneControls);
-        CarEntity car2 = new CarEntity(50,50, (Color) settingsObject.getSetting(Settings.settingsKeys[9]), carTwoControls);
-        BallEntity ballEntity = new BallEntity(this.frame.getWidth()/2, this.frame.getHeight()/2, Color.BLACK);
-        car1.setCollisions(new int[] {car2.hashCode(), ballEntity.hashCode()});
-        car2.setCollisions(new int[] {car1.hashCode(), ballEntity.hashCode()});
-        ballEntity.setCollisions(new int[] {car2.hashCode(), car1.hashCode()});
+        CarEntity car1 = new CarEntity(this.frame.getWidth()/2,95, (Color) settingsObject.getSetting(Settings.settingsKeys[8]), carOneControls, 90.0);
+        CarEntity car2 = new CarEntity(this.frame.getWidth()/2,this.frame.getHeight() - 85, (Color) settingsObject.getSetting(Settings.settingsKeys[9]), carTwoControls, -90.0);
+        BallEntity ballEntity = new BallEntity(this.frame.getWidth()/2 - 10, this.frame.getHeight()/2, Color.BLACK);
+        WallEntity wallEntity = new WallEntity(this.frame.getWidth()/2 - FIELD_WIDTH/2,50, true,this.frame.getHeight() - 100);
+        WallEntity wallEntity2 = new WallEntity(this.frame.getWidth()/2 + FIELD_WIDTH/2,50, true,this.frame.getHeight() - 100);
+        WallEntity wallEntity3 = new WallEntity(this.frame.getWidth()/2 - FIELD_WIDTH/2,50, false, FIELD_WIDTH);
+        WallEntity wallEntity4 = new WallEntity(this.frame.getWidth()/2 - FIELD_WIDTH/2,this.frame.getHeight() - 50, false,FIELD_WIDTH);
+        GoalEntity goalEntity1 = new GoalEntity(this.frame.getWidth()/2 - 25,60,false,50,1);
+        GoalEntity goalEntity2 = new GoalEntity(this.frame.getWidth()/2 - 25,this.frame.getHeight() - 60,false,50,2);
+        car1.setCollisions(new int[] {car2.hashCode(), ballEntity.hashCode(), wallEntity.hashCode(), wallEntity2.hashCode(), wallEntity3.hashCode()/*, wallEntity4.hashCode()*/});
+        car2.setCollisions(new int[] {car1.hashCode(), ballEntity.hashCode(), wallEntity.hashCode(), wallEntity2.hashCode(), wallEntity3.hashCode(), wallEntity4.hashCode()});
+        ballEntity.setCollisions(new int[] {car2.hashCode(), car1.hashCode(), wallEntity.hashCode(), wallEntity2.hashCode(), wallEntity3.hashCode(), wallEntity4.hashCode(),goalEntity1.hashCode(),goalEntity2.hashCode()});
         entityHandler.addEntity(car1);
         entityHandler.addEntity(car2);
+        entityHandler.addEntity(wallEntity);
+        entityHandler.addEntity(wallEntity2);
+        entityHandler.addEntity(wallEntity3);
+        entityHandler.addEntity(wallEntity4);
+        entityHandler.addEntity(goalEntity1);
+        entityHandler.addEntity(goalEntity2);
         entityHandler.addEntity(ballEntity);
         while (running){
             entityHandler.run();
@@ -110,7 +126,7 @@ public class League implements Runnable{
 
     private void paint() {
         calculateFPS();
-        frame.getGraphics().drawImage(entityHandler.drawFrame(frame.createImage(frame.getWidth(),frame.getHeight()),String.valueOf(fps)),0,0,null);
+        frame.getGraphics().drawImage(entityHandler.drawFrame(frame.createImage(frame.getWidth(),frame.getHeight()),String.valueOf(fps), new int[] {SCORE_ONE, SCORE_TWO}),0,0,null);
     }
 
 
@@ -123,5 +139,14 @@ public class League implements Runnable{
     public void exit() {
         this.running = false;
         back.run();
+    }
+
+    public void increaseScore(int number){
+        if(number == 1){
+            SCORE_ONE++;
+        }else{
+            SCORE_TWO++;
+        }
+        System.out.println(SCORE_ONE + " " + SCORE_TWO);
     }
 }

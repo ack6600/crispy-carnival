@@ -15,7 +15,7 @@ public class SettingsScreen implements KeyListener, Runnable {
             KeyEvent.VK_DOWN,
             KeyEvent.VK_UP,
             KeyEvent.VK_ENTER,
-            KeyEvent.VK_ESCAPE
+//            KeyEvent.VK_ESCAPE
     };
     private volatile boolean running;
     private volatile int selected = 0;
@@ -106,16 +106,12 @@ public class SettingsScreen implements KeyListener, Runnable {
                     }
                     if(keyHandler.getKeyPressed(keys[2]))
                         handleSetting();
-                    if(keyHandler.getKeyPressed(keys[3]))
+                    if(keyHandler.getKeyPressed(KeyEvent.VK_ESCAPE))
                         this.exit();
                     cooldown = true;
                     now = System.nanoTime();
                 } catch (UnregisteredKeyException e) {
-                    String error = e.getMessage();
-                    for(int i = 0; i < error.length();i++){
-                        if(error.charAt(i) == ':')
-                            keyHandler.registerKeys(new int[] {Integer.parseInt(error.substring(i+1))});
-                    }
+                    KeyHandler.handleKeyError(e.getMessage(),keyHandler);
                 }
             }
             if(cooldown){
@@ -131,6 +127,8 @@ public class SettingsScreen implements KeyListener, Runnable {
     }
 
     private void handleSetting() {
+        if(Settings.allSettings[selected].getClass() == int.class)
+            Settings.allSettings[selected] = lastPressed;
 
     }
 

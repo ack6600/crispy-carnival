@@ -9,20 +9,22 @@ import java.util.concurrent.TimeUnit;
 public class CarEntity extends Entity {
     private double x, y;
     private Color color;
-    private double angle = 0.0;
+    private double angle = 90.0;
     private double length = 20.0;
     private double width = 40.0;
-    private double speed = 200.0;
-    private final double TURN_SPEED = 200.0;
+    private double speed = 400.0;
+    private final double TURN_SPEED = 350.0;
     private int[] collisions;
     private int[] controls;
     private boolean collides;
+    private boolean forwards = true;
 
-    public CarEntity(double x, double y, Color color, int[] controls){
+    public CarEntity(double x, double y, Color color, int[] controls, double startAngle){
         this.x = x;
         this.y = y;
         this.color = color;
         this.controls = controls;
+        this.angle = startAngle;
     }
 
     @Override
@@ -78,9 +80,25 @@ public class CarEntity extends Entity {
     public void update(KeyHandler keyHandler, EntityHandler entityHandler, long time) {
         double seconds = ((double) time) / 1000000000.0;
         int bumps = 0;
+        int xBound = 0;
+        int yBound = 0;
         for(int i : collisions){
-            if(this.intersects(entityHandler.getEntity(i).getPolygon()))
+            Entity entity = entityHandler.getEntity(i);
+            if(this.intersects(entity.getPolygon())) {
                 bumps++;
+                if(entity.getClass() == CarEntity.class || entity.getClass() == WallEntity.class) {
+                    if(entity.getX() > this.getX()){
+                        xBound = -1;
+                    }else {
+                        xBound = 1;
+                    }
+                    if(entity.getY() > this.getY()){
+                        yBound = -1;
+                    }else{
+                        yBound = 1;
+                    }
+                }
+            }
         }
         collides = bumps > 0;
         try {
@@ -92,27 +110,31 @@ public class CarEntity extends Entity {
                 angle += TURN_SPEED * seconds;
             if(left)
                 angle -= TURN_SPEED * seconds;
-            double [] speeds = getSpeeds(this.angle);
+            double [] speeds = getSpeeds();
+            double xInc = speeds[0] * seconds;
+            double yInc = speeds[1] * seconds;
             if(up) {
-                this.x += speeds[0] * seconds;
-                this.y += speeds[1] * seconds;
+                forwards = true;
+                this.x += (xBound == 0) ? xInc : (xBound > 0) ? Math.max(xInc, 0) : Math.min(xInc, 0);
+                this.y += (yBound == 0) ? yInc : (yBound > 0) ? Math.max(yInc, 0) : Math.min(yInc, 0);
             }
             if(down){
-                this.x -= speeds[0] * seconds;
-                this.y -= speeds[1] * seconds;
+                forwards = false;
+                this.x -= (xBound == 0) ? xInc : (xBound > 0) ? Math.min(xInc, 0) : Math.max(xInc, 0);
+                this.y -= (yBound == 0) ? yInc : (yBound > 0) ? Math.min(yInc, 0) : Math.max(yInc, 0);
             }
 
         } catch (UnregisteredKeyException e) {
-            String error = e.getMessage();
-            for(int i = 0; i < error.length();i++){
-                if(error.charAt(i) == ':')
-                    keyHandler.registerKeys(new int[] {Integer.parseInt(error.substring(i+1))});
-            }
+            KeyHandler.handleKeyError(e.getMessage(),keyHandler);
         }
     }
 
-    private double[] getSpeeds(double angle){
+    public double[] getSpeeds(){
         return new double[] {(speed * Math.cos(Math.toRadians(angle))), (speed * Math.sin(Math.toRadians(angle)))};
+    }
+
+    public boolean isForwards(){
+        return forwards;
     }
 
     @Override
