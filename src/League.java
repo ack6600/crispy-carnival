@@ -24,7 +24,7 @@ public class League implements Runnable{
     public static void main(String[] args){
         initSettings();
         JFrame root = new JFrame("League");
-        League league = new League(root,1280,720, settingsObject);
+        League league = new League(root,1280,900, settingsObject);
         SettingsScreen settings = new SettingsScreen(root, settingsObject);
         BufferedImage logo = null;
         try {
@@ -32,7 +32,7 @@ public class League implements Runnable{
         } catch (IOException e) {
             e.printStackTrace();
         }
-        TitleScreen titleScreen = new TitleScreen(root, 1280, 720, new String[] {"Start", "Settings"}, new Runnable[] {league, settings}, logo);
+        TitleScreen titleScreen = new TitleScreen(root, 1280, 900, new String[] {"Start", "Settings"}, new Runnable[] {league, settings}, logo);
         settings.setBack(titleScreen);
         league.setBack(titleScreen);
         titleScreen.start();
@@ -101,7 +101,7 @@ public class League implements Runnable{
         WallEntity wallEntity4 = new WallEntity(this.frame.getWidth()/2 - FIELD_WIDTH/2,this.frame.getHeight() - 50, false,FIELD_WIDTH);
         GoalEntity goalEntity1 = new GoalEntity(this.frame.getWidth()/2 - 25,60,false,50,1);
         GoalEntity goalEntity2 = new GoalEntity(this.frame.getWidth()/2 - 25,this.frame.getHeight() - 60,false,50,2);
-        car1.setCollisions(new int[] {car2.hashCode(), ballEntity.hashCode(), wallEntity.hashCode(), wallEntity2.hashCode(), wallEntity3.hashCode()/*, wallEntity4.hashCode()*/});
+        car1.setCollisions(new int[] {car2.hashCode(), ballEntity.hashCode(), wallEntity.hashCode(), wallEntity2.hashCode(), wallEntity3.hashCode(), wallEntity4.hashCode()});
         car2.setCollisions(new int[] {car1.hashCode(), ballEntity.hashCode(), wallEntity.hashCode(), wallEntity2.hashCode(), wallEntity3.hashCode(), wallEntity4.hashCode()});
         ballEntity.setCollisions(new int[] {car2.hashCode(), car1.hashCode(), wallEntity.hashCode(), wallEntity2.hashCode(), wallEntity3.hashCode(), wallEntity4.hashCode(),goalEntity1.hashCode(),goalEntity2.hashCode()});
         entityHandler.addEntity(car1);
